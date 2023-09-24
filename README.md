@@ -194,7 +194,85 @@ L.data = new ElemType[InitSize];						//For C++
 
 ### 2.2.2 顺序表上基本操作的实现
 
+​	由于其他操作都比较简单，这里只讨论插入、删除、查找的算法。
 
+ 1.  插入
+
+     ```C++
+     bool ListInsert(SqList &L, int i, ElemType e)
+     {
+         if (i < 1 || i > L.Length + 1)			//判断i范围是否有效
+             return false;
+         if (L.Length >= MaxSize)				//当前已满
+             return false;
+         for (int j = L.Length > j >= i; j--)	//元素后移
+             L.data[j] = L.data[j - 1];
+         L.data[i - 1] = e;						//放入i
+         L.Length++;								//长度+1
+         return true;
+     }
+     ```
+
+     ​	平均情况：假设 $p_i=\frac{1}{n+1}$ 是在第 $i$ 个位置上插入一个结点的概率，则平均移动次数为
+     $$
+     \scriptsize \sum_{i=1}^{n+1}{p_i(n-i+1)}  = \sum_{i=1}^{n+1}{\frac{1}{n+1}(n-i+1)}  =
+     \frac{1}{n+1} \sum_{i=1}^{n+1}{(n-i+1)}  = 
+     \frac{1}{n+1} \frac{n(n+1)}{2} 
+     = \frac{n}{2}
+     $$
+     ​	故平均时间复杂度为 $O(n)$。
+
+     
+
+ 2.  删除
+
+     ```C++
+     bool ListDelete(SqList &L, int i, ElemType e)
+     {
+         if (i < 1 || i > L.Length)          //判断范围是否有效
+             return false;
+         e = L.data[i - 1];                  //把被删除的元素给e
+         for (int j = i; j < L.Length; j++)  //元素前移
+             L.data[j - 1] = L.data[j];      
+         L.Length--;                         //长度-1
+         return true;
+     }
+     ```
+
+     ​	平均情况：假设假设 $p_i=\frac{1}{n}$ 是在第 $i$ 个位置上删除一个结点的概率，则平均移动次数为
+     $$
+     \scriptsize \sum_{i=1}^{n}{p_i(n-i)}  = \sum_{i=1}^{n}{\frac{1}{n}(n-i)}  =
+     \frac{1}{n} \sum_{i=1}^{n}{(n-i)}  = 
+     \frac{1}{n} \frac{n(n-1)}{2} 
+     = \frac{n-1}{2}
+     $$
+     ​	故平均时间复杂度为 $O(n)$。
+
+     
+
+ 3.  按值查找（顺序查找）
+
+     ```C++
+     int LocateElem(SqList L, ElemType e)
+     {
+         int i;
+         for (i = 0; i < L.Length; i++)
+             if (L.data[i] == e)
+                 return i + 1;               //下表为i的元素等于e，返回位序i+1
+         return 0;                           //查找失败
+     }
+     ```
+
+     ​	平均情况：假设假设 $p_i=\frac{1}{n}$ 是要查找的元素在第 $i$ 个位置上的概率，则所需要的比较次数为
+     $$
+     \scriptsize 
+     \sum_{i=1}^{n}{p_i\times i}  
+     = \sum_{i=1}^{n}{\frac{1}{n} \times i}  
+     = \frac{1}{n} \frac{n(n+1)}{2}  = \frac{n+1}{2}
+     $$
+     ​	故平均时间复杂度为 $O(n)$。
+     
+     
 
 ## 2.3 线性表的链式表示
 
