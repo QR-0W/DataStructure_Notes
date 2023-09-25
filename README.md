@@ -581,11 +581,144 @@ typedef struct{
 
 ### 3.1.1 栈的基本概念
 
+ 1.  栈的定义
 
+     栈（Stack）是只允许在一端进行插入或者操作删除的线性表。
+
+     ![image-20230925221534819](./assets/image-20230925221534819.png)
+
+     
+
+ 2.  栈的基本操作
+
+     ```C++
+     InitStack(&S)，初始化一个空栈
+         
+     StackEmpty(S)，判断一个栈是否为空
+         
+     Push(&S, x)，进栈
+         
+     Pop(&S, &x)，出栈
+         
+     GetTop(S, &x)，读取栈顶元素
+         
+     DestroyStack(&S)，销毁并释放存储空间
+         
+     ```
+
+     
+
+ 3.  卡特兰数
+
+     $n$ 个不同元素进栈，出栈元素的不同排列个数为：
+     $$
+     N = \frac{1}{n+1}C_{2n}^{n}
+     $$
+     
 
 ### 3.1.2 栈的顺序存储结构
 
+​	栈是一种操作受限的线性表，有两种对应的存储方式。
 
+ 1.  顺序栈的实现
+
+     ​	顺序栈利用一组地址连续的存储单元存放自栈底到栈顶的数据元素，同时利用 top 指针指示当前栈顶元素的位置。其存储类型可以描述为：
+
+     ```C++
+     #define MaxSize 50
+     typedef struct
+     {
+         ElemType data[MaxSize];             //存放数据元素
+         int top;                            //栈顶指针
+     }SqStack;
+     ```
+
+     ​	在这里，栈空条件为 S.top == -1，栈满条件为 S.top == MaxSize - 1。
+
+     
+
+ 2.  顺序栈的基本运算
+
+     ​	栈操作的示意图如下图所示：
+
+     ![image-20230925222938551](./assets/image-20230925222938551.png)
+
+     ​	下面是常用操作的实现：
+
+      1.  初始化
+
+          ```C++
+          void InitStack(SqStack &S)
+          {
+              S.top = -1;                         //初始化栈顶指针
+          }
+          ```
+
+          
+
+      2.  判空
+
+          ```C++
+          bool StackEmpty(SqStack S)
+          {
+              if (S.top == -1)                    //栈空
+                  return true;        
+              else                                //非空
+                  return false;
+          }
+          ```
+
+          
+
+      3.  入栈
+
+          ```C++
+          bool Push(SqStack &S, ElemType e)
+          {
+              if(S.top == MaxSize -1)             //栈满
+                  return false;
+              S.data[++S.top] = e;                //指针先+1再入栈
+              return true;
+          }
+          ```
+
+          
+
+      4.  出栈
+
+          ```C++
+          bool Pop(SqStack &S, ElemType &e)
+          {
+              if(S.top == -1)                     //栈空
+                  return false;
+              e = S.data[S.top--];                //先出栈指针再-1
+              return true;
+          }
+          ```
+
+          
+
+      5.  读取栈顶元素
+
+          ```C++
+          bool GetTop(SqStack S, ElemType &x)
+          {
+              if(S.top == -1)                     //栈空
+                  return false;
+              x = S.data[S.top];                  //x记录栈顶元素
+              return true;
+          }
+          ```
+
+          
+
+ 3.  共享栈
+
+     ​	利用栈底位置相对不变的特性，让两个顺序栈共享一个数组空间。
+
+     ![image-20230925224018725](./assets/image-20230925224018725.png)
+
+     ​	top0 = -1 时0号栈为空、top1 = MaxSize 时1号栈为空；top1 - top0 = 1时栈满。	
 
 ### 3.1.3 栈的链式存储结构
 
