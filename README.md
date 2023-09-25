@@ -722,6 +722,18 @@ typedef struct{
 
 ### 3.1.3 栈的链式存储结构
 
+​	采用链式存储的栈称为链栈，通常采用单链表实现。通常规定链栈没有头结点，Lhead指向栈顶元素。
+
+![image-20230925224545239](./assets/image-20230925224545239.png)
+
+```C++
+typedef struct Linknode
+{
+    ElemType data;                      //数据域
+    struct Linknode *next;              //指针域
+} *LiStack;
+```
+
 
 
 ## 3.2 队列
