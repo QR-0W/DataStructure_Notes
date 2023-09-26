@@ -612,7 +612,7 @@ typedef struct{
 
      $n$ 个不同元素进栈，出栈元素的不同排列个数为：
      $$
-     N = \frac{1}{n+1}C_{2n}^{n}
+     N = \frac{1}{n+1}C_{2n}^{n} = \frac{(2n)!}{n!(n+1)!}
      $$
      
 
@@ -985,23 +985,377 @@ typedef struct Linknode
 
 ### 3.3.1 括号匹配
 
+​	假设有一个括号序列，如下所示：
+
+![image-20230926144725974](./assets/image-20230926144725974.png)
+
+​	算法的基本思想如下：
+
+- 利用栈存储左括号，遇到右括号就匹配，如果失匹就失败，否则消解。
+- 一直重复直到扫描完成，若此时栈中还有括号，则失败。
+
+​	
+
+### 3.3.2 表达式转换、求值
+
+​	主要是中缀、前缀和后缀表达式的转换。常见流程如下图所示：
+
+![image-20230926161134571](./assets/image-20230926161134571.png)
+
+​	
+
+```C++
+//计算优先度
+int getPriority(char op)
+{
+    if (op == '+' || op =='-')
+        return 0;
+    else
+        return 1;
+}
+```
+
+​	如果需要用到栈与队列来实现的话，假设这里有一个中缀表达式 $a+b-a*((c+d)/e-f)+g $ ，则流程如下：
+
+ 1. 中缀转后缀
+
+    ​	自左向右扫描，数字进入队列。
+
+    ​	运算符用一个栈来保存。若栈空，则运算直接入栈。若栈非空，则有三种情况：
+
+    ​	1、栈顶为左括号，则当前元素直接入栈；
+
+    ​	2、当前元素为右括号，则将栈顶至左括号的全部元素全部出栈，并消除括号；
+
+    ​	3、若栈顶为其他运算符，则循环比较当前运算符和栈顶运算符，如果栈顶运算符优先级$\ge$当前运算符优先级，则出栈并继续循环；否则入栈当前运算符，并停止循环。
+
+    ```C++
+    void infixToPostFix(char infix[], char s2[], int &top2) //s2为结果栈
+    {
+        char s1[MaxSize];
+        int top1 = -1;
+        int i = 0;
+        while (infix[i]!='\0')
+        {
+            // 若为数字则直接入队
+            if('0'<=infix[i] && infix[i]<='9')              
+            {
+                s2[top2++] = infix[i];                      //入队之后到下一位 
+                ++i;
+            }
+            // 若为左括号则直接入栈
+            else if (infix[i] == '(')                       
+            {
+                s1[++top1] = '(';
+                ++i;
+            }
+            // 若为运算符则进行判断
+            else if (infix[i] == '+' || infix[i] == '-' || infix[i] == '*' || infix[i] == '/')
+            {
+                if(top1 ==-1 || s1[top1] == '(' || getPriority(infix[i]) > getPriority(s1[top1]))
+                //栈空/左括号/当前运算符大于栈顶预算夫优先级则入栈
+                {
+                    s1[++top1] = infix[i];
+                    ++i;
+                }
+                else
+                    s2[++top2] = s1[top1--];                //否则出栈
+            }
+            // 若为右括号
+            else if (infix[i] == ')')                      
+            {
+                while (s1[top1]!='(')
+                    s2[++top2] = s1[top1--];                //不停出栈
+                --top1;                                     //左括号出栈
+                ++i;                                        //跳过右括号
+            }
+        }
+        // 将剩余的符号全部放入结果中
+        while (top1 != -1)                                  
+        {
+            s2[++top2] = s1[top1--];
+        }
+    }
+    ```
+
+    
+
+ 2. 中缀转前缀
+
+    ​	自右向左扫描，数字之间进入队列。
+
+    ​	运算符用一个栈来保存。若栈空，则运算直接入栈。若栈非空，则有三种情况：
+
+    ​	1、栈顶为右括号，则当前元素直接入栈；
+
+    ​	2、当前元素为左括号，则将栈顶至右括号的全部元素全部出栈，并消除括号；
+
+    ​	3、若栈顶为其他运算符，则循环比较当前运算符和栈顶运算符，如果栈顶运算符优先级$\gt$当前运算符优先级，则出栈并继续循环；否则入栈当前运算符，并停止循环。
+
+    ```C++
+    void infixToPreFix(char infix[], int len, char s2[], int &top2) // s2为结果栈
+    {
+        char s1[MaxSize];
+        int top1 = -1;
+        int i = len - 1;
+        while (i >= 0)
+        {
+            // 若为数字则直接入队
+            if ('0' <= infix[i] && infix[i] <= '9')
+            {
+                s2[top2++] = infix[i]; // 入队之后到下一位
+                --i;
+            }
+            // 若为右括号则直接入栈
+            else if (infix[i] == ')')
+            {
+                s1[++top1] = ')';
+                --i;
+            }
+            // 若为运算符则进行判断
+            else if (infix[i] == '+' || infix[i] == '-' || infix[i] == '*' || infix[i] == '/')
+            {
+                if (top1 == -1 || s1[top1] == ')' || getPriority(infix[i]) >= getPriority(s1[top1]))
+                // 栈空/右括号/当前运算符大于等于栈顶预算夫优先级则入栈
+                {
+                    s1[++top1] = infix[i];
+                    --i;
+                }
+                else
+                    s2[++top2] = s1[top1--]; // 否则出栈
+            }
+            // 若为左括号
+            else if (infix[i] == '(')
+            {
+                while (s1[top1] != ')')
+                    s2[++top2] = s1[top1--]; // 不停出栈
+                --top1;                      // 右括号出栈
+                --i;                         // 跳过左括号
+            }
+        }
+        // 将剩余的符号全部放入结果中
+        while (top1 != -1)
+        {
+            s2[++top2] = s1[top1--];
+        }
+    }
+    ```
+
+    
+
+ 3. 后缀转前缀
+
+    ​	每当扫描到一个运算符的时候，就将两个子表达式放到该运算符的后面。（参考表达式求值）
+
+    
+
+### 3.3.3 表达式求值
+
+​	主要是中缀、前缀和后缀表达式的求值。
+
+```C++
+//计算优先度
+int getPriority(char op)
+{
+    if (op == '+' || op =='-')
+        return 0;
+    else
+        return 1;
+}
+//计算结果
+int calSub(float opand1, char op, float opand2, float &result)
+{
+    if (op == '+')
+        result = opand1 + opand2;
+    if (op == '-')
+        result = opand1 - opand2;
+    if (op == '*')
+        result = opand1 * opand2;
+    if (op == '/')
+    {
+        if (fabs(opand2) < MIN)
+            return 0;
+        else
+            result = opand1 / opand2;
+    }
+    return 1;
+}
+```
 
 
-### 3.3.2 表达式求值
 
+ 1.  中缀表达式求值
 
+     ​	需要用到两个栈，一个存数据，一个存符号。
 
-### 3.3.3 递归
+     ```C++
+     float calInfix(char exp[])
+     {
+         float s1[MaxSize];
+         char s2[MaxSize];
+         int top1 = -1, top2 = -1;
+         int i = 0;
+         while (exp[i] != '\0')
+         {
+             //数字直接入栈
+             if ('0' <= exp[i] && exp[i] <= '9')
+             {
+                 s1[++top1] = exp[i] - '0';
+                 ++i;
+             }
+             //左括号入运算符栈
+             else if (exp[i] == '(')
+             {
+                 s2[++top2] = '(';
+                 ++i;
+             }
+             //运算符要判断
+             else if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/')
+             {
+                 //栈空、栈顶为左括号、当前优先级高直接入栈
+                 if (top2 == -1 || s2[top2] == '(' || getPriority(exp[i] > getPriority(s2[top2])))
+                 {
+                     s2[++top2] = exp[i];
+                     ++i;
+                 }
+                 else
+                 {
+                     float opnd1, opnd2, result;
+                     char op;
+                     int flag;
+                     opnd2 = s1[top1--]; // 第二个操作数先出栈
+                     opnd1 = s1[top1--]; // 第一个操作数后出栈
+                     op = s2[top2--]; 
+                     flag = calSub(opnd1, op, opnd2, result);
+                     if (flag == 0)
+                     {
+                         cout << "ERROR" << endl;
+                         break;
+                     }
+                     s1[++top1] = result; // 将结果压入栈中
+                 }
+             }
+             //右括号
+             else if (exp[i] == ')')
+             {
+                 while(s2[top2] != '(')
+                 {
+                     float opnd1, opnd2, result;
+                     char op;
+                     int flag;
+                     opnd2 = s1[top1--]; // 第二个操作数先出栈
+                     opnd1 = s1[top1--]; // 第一个操作数后出栈
+                     op = s2[top2--];
+                     flag = calSub(opnd1, op, opnd2, result);
+                     if (flag == 0)
+                     {
+                         cout << "ERROR" << endl;
+                         break;
+                     }
+                     s1[++top1] = result; // 将结果压入栈中
+                 }
+                 --top2;                  // 左括号出栈
+                 ++i;                     // 跳过右 括号
+             }
+         }
+         //如果栈中还有元素，则进行运算 
+         while (top2 != -1)
+         {
+             float opnd1, opnd2, result;
+             char op;
+             int flag;
+             opnd2 = s1[top1--]; // 第二个操作数先出栈
+             opnd1 = s1[top1--]; // 第一个操作数后出栈
+             op = s2[top2--];
+             flag = calSub(opnd1, op, opnd2, result);
+             if (flag == 0)
+             {
+                 cout << "ERROR" << endl;
+                 break;
+             }
+             s1[++top1] = result; // 将结果压入栈中
+         }
+         return s1[top1];
+     }
+     ```
 
+     
 
+ 2.  后缀表达式求值
 
-### 3.3.4  层序遍历
+     ​	需要用到一个栈，同时存放数据和符号。
 
+     ```C++
+     float calPostFix(char exp[])
+     {
+         float s[MaxSize];
+         int top = -1;
+         int i = 0;
+         while (exp[i] != '\0')
+         {
+             // 若为数字则直接入队
+             if ('0' <= exp[i] && exp[i] <= '9')
+                 s[++top] = exp[i] -  '0';
+             // 若为运算符则直接计算
+             else if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/')
+             {
+                 float opnd1, opnd2, result;
+                 char op;
+                 int flag;
+                 opnd2 = s[top--];           //第二个操作数先出栈
+                 opnd1 = s[top--];           //第一个操作数后出栈 
+                 op = exp[i];
+                 flag = calSub(opnd1, op, opnd2, result);
+                 if(flag == 0)
+                 {
+                     cout << "ERROR" << endl;
+                     break;
+                 }
+                 s[++top] = result;          //将结果压入栈中
+             }
+             ++i;
+         }
+         return s[top];
+     }
+     ```
 
+     
 
-### 3.3.5 计算机系统中的应用
+ 3.  前缀表达式求值
 
+     ​	需要用到一个栈，同时存放数据和符号，但是使从后往前扫描，且取出顺序不同。
 
+     ```C++
+     float calPreFix(char exp[], int len)
+     {
+         float s[MaxSize];
+         int top = -1;
+         for (int i = len - 1; i >= 0; --i)
+         {
+             if('0' <= exp[i] && exp[i] <= '9')
+                 s[++top] = exp[i] - '0';
+             else
+             {
+                 float opnd1, opnd2, result;
+                 char op;
+                 int flag;
+                 opnd1 = s[top--]; // 第一个操作数先出栈
+                 opnd2 = s[top--]; // 第二个操作数后出栈
+                 op = exp[i];
+                 flag = calSub(opnd1, op, opnd2, result);
+                 if (flag == 0)
+                 {
+                     cout << "ERROR" << endl;
+                     break;
+                 }
+                 s[++top] = result; // 将结果压入栈中
+             }
+         }
+         return s[top];
+     }
+     ```
+
+     
 
 ## 3.4 数组和特殊矩阵
 
