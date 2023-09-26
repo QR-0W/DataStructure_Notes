@@ -608,7 +608,7 @@ typedef struct{
 
      
 
- 3.  卡特兰数
+ 3.  栈的重要数学性质：卡特兰数
 
      $n$ 个不同元素进栈，出栈元素的不同排列个数为：
      $$
@@ -740,17 +740,244 @@ typedef struct Linknode
 
 ### 3.2.1 队列的基本概念
 
+ 1.  队列的定义
 
+     队列 Queue 也是一种操作受限的线性表，只允许在表的异端进行插入，另一端进行删除。
+
+     ![image-20230926102922102](./assets/image-20230926102922102.png)
+
+     
+
+ 2.  队列的基本操作
+
+     ```C++
+     InitQueue(&Q)，初始化队列
+     
+     QueueEmpty(Q)，判断队空
+     
+     EnQueue(&Q, x)，入队
+     
+     DeQueue(&Q, &x)，出队
+     
+     GetHead(Q, &x)，读取队头元素
+      
+     ```
+
+     
 
 ### 3.2.2 队列的顺序存储结构
 
+ 1.  队列的顺序存储
 
+     ​	队列的顺序存储类型可以描述为：
+
+     ```C++
+     #define MaxSize 50
+     typedef struct
+     {
+         ElemType data[MaxSize];             //存放队列元素
+         int front, rear;                    //队头、队尾指针
+     } SqQueue;
+     ```
+
+     ​	队空条件：Q.front == Q.rear == 0
+
+     
+
+     ​	在这里存在“假溢出”的问题：
+
+     ![image-20230926103611186](./assets/image-20230926103611186.png)
+
+     ​	可以看到，即使队中可以存放元素，但也出现了上溢出。
+
+     
+
+ 2.  循环队列
+
+     ​	在这里引入循环队列的操作，利用取余实现队列的自动循环。
+
+     ​	初始时 Q.front = Q.rear = 0，而每次前进都有 Q.rear/front = (Q.rear/front + 1) % MaxSize 。队列的长度则为 (Q.rear - Q.front + MaxSize) % MaxSize 。
+
+     ​	但是在这种情况下无法区分队满和队空的区别，因此常用的方法是牺牲一个存储单元来区分队空与队满，如下图所示：
+
+     ![image-20230926104258105](./assets/image-20230926104258105.png)
+
+     ​	在这种情况下，队满条件为 (Q.rear + 1) % MaxSize == Q.front ，而队空条件仍然为 Q.front == Q.rear 。
+
+     此时元素个数仍然为 (Q.rear - Q.front + MaxSize) % MaxSize 。
+
+     
+
+ 3.  循环队列的操作
+
+     1. 初始化
+
+        ```C++
+        void InitQueue(SqQueue &Q)
+        {
+            Q.rear = Q.front = 0;               //初始化队首、队尾
+        }
+        ```
+
+        
+
+     2. 判空
+
+        ```C++
+        bool isEmpty(SqQueue Q)
+        {
+            if(Q.rear == Q.front)               //队空
+                return true;
+            else
+                return false;
+        }
+        ```
+
+        
+
+     3. 入队
+
+        ```C++
+        bool EnQueue(SqQueue &Q, ElemType e)
+        {
+            if((Q.rear + 1) % MaxSize == Q.front)
+                return false;                   //队满
+            Q.data[Q.rear] = e;
+            Q.rear = (Q.rear + 1) % MaxSize;    //队尾+1取模
+            return true;
+        }
+        ```
+
+        
+
+     4. 出队
+
+        ```C++
+        bool DeQueue(SqQueue &Q, ElemType &e)
+        {
+            if(Q.rear == Q.front)
+                return false;                   //队空
+            e = Q.data[Q.front];
+            Q.front = (Q.front + 1) % MaxSize;  //队头+1取模
+            return true;
+        }
+        ```
+
+        
 
 ### 3.2.3 队列的链式存储结构
 
+ 1.  队列的链式存储
 
+     ​	链队实际上是一个同时带有队头指针和队尾指针的单链表，头指针指向队头结点，尾指针指向队尾结点。存储表示如下所示：
+
+     ```C++
+     typedef struct LinkNode
+     {
+         ElemType data;
+         struct LinkNode *Next;
+     } LinkNode;
+     
+     typedef struct
+     {
+         LinkNode *front, *rear;
+     } LinkQueue;
+     ```
+
+     ​	当 Q.front == NULL 且 Q.rear == NULL 的时候，队列为空。
+
+     
+
+     ​	在链式队列中，不带头结点的操作往往比较困难，因此需要采用带头结点的单链表来实现。
+
+     ![image-20230926111045012](./assets/image-20230926111045012.png)
+
+     ​	
+
+ 2.  链式队列的基本操作
+
+     1. 初始化
+
+        ```C++
+        void InitQueue(LinkQueue &Q)
+        {
+            Q.front = Q.rear = (LinkNode *)malloc(sizeof(LinkNode));
+            Q.front->Next = NULL;               //初始为空
+        }
+        ```
+
+        
+
+     2. 判空
+
+        ```C++
+        bool isEmpty(LinkQueue Q)
+        {
+            if(Q.front == Q.rear)
+                return true;
+            return false;
+        }
+        ```
+
+        
+
+     3. 入队
+
+        ```C++
+        void EnQueue(LinkQueue &Q, ElemType e)
+        {
+            LinkNode *s = (LinkNode *)malloc(sizeof(LinkNode));
+            s->data = e;
+            
+            s->Next = NULL;                     //尾插法
+            Q.rear->Next = s;
+            Q.rear = s;
+        }
+        ```
+
+        
+
+     4. 出队
+
+        ```C++
+        bool DeQueue(LinkQueue &Q, ElemType &e)
+        {
+            if(Q.front == Q.rear)
+                return false;
+            LinkNode *p = Q.front->Next;
+        
+            e = p->data;
+            Q.front->Next = p->Next;
+        
+            if(Q.rear == p)                     //若队列中只有一个结点，还需要调整rear
+                Q.rear = Q.front;
+            
+            free(p);
+            return true;
+        }
+        ```
+
+        
 
 ### 3.2.4 双端队列
+
+​	双端队列是指两端都可以入队和出队的队列。
+
+![image-20230926112247314](./assets/image-20230926112247314.png)
+
+​	
+
+​	通常考察的为输入/输出受限的双端队列。
+
+​	输出受限的双端队列是指允许在一端进行插入删除，另一端只能输入的队列：
+
+![image-20230926112346366](./assets/image-20230926112346366.png)
+
+​	而输入受限的双端队列是指允许在一端进行插入删除，另一端只能输出的双端队列：
+
+![image-20230926112447097](./assets/image-20230926112447097.png)
+
+​	在考察中，判断是否能根据条件得出序列方法往往是<u>一个个带入验证</u>即可。
 
 
 
