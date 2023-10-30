@@ -531,3 +531,33 @@ typedef struct BiTNode
     ElemType data;
     struct BiTNode *lChild, *rChild;
 } BiTNode, *BiTree;
+
+void PreOrder(BiTree T)
+{
+    if (T!=NULL)
+    {
+        visit(T);
+        PreOrder(T->lChild);
+        PreOrder(T->rChild);
+    }
+}
+
+void InOrder(BiTree T)
+{
+    if(T!=NULL)
+    {
+        InOrder(T->lChild);
+        visit(T);
+        InOrder(T->rChild);
+    }
+}
+
+void PostOrder(BiTree T)
+{
+    if(T!=NULL)
+    {
+        PostOrder(T->lChild);
+        PostOrder(T->rChild);
+        visit(T);
+    }
+}

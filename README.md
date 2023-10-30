@@ -1691,7 +1691,63 @@ $$
 
 ### 5.3.1 二叉树的遍历
 
+​	二叉树的遍历是指按某条搜索路径访问树中每个结点。
 
+​	由二叉树的递归定义可知，遍历一颗二叉树要决定对根节点 N，左子树 L 和右子树 R 的访问顺序。
+
+ 1.  先序遍历
+
+	先序遍历的访问顺序：根 - 左 - 右
+
+	```C++
+	void PreOrder(BiTree T)
+	{
+	    if (T!=NULL)
+	    {
+	        visit(T);
+	        PreOrder(T->lChild);
+	        PreOrder(T->rChild);
+	    }
+	}
+	```
+
+	
+
+ 2.  中序遍历
+
+	中序遍历的访问顺序：左 - 根 - 右
+
+	```C++
+	void InOrder(BiTree T)
+	{
+	    if(T!=NULL)
+	    {
+	        InOrder(T->lChild);
+	        visit(T);
+	        InOrder(T->rChild);
+	    }
+	}
+	```
+
+	
+
+ 3.  后序遍历
+
+	后序遍历的访问顺序：左 - 右 - 根
+
+	```C++
+	void PostOrder(BiTree T)
+	{
+	    if(T!=NULL)
+	    {
+	        PostOrder(T->lChild);
+	        PostOrder(T->rChild);
+	        visit(T);
+	    }
+	}
+	```
+
+	
 
 ### 5.3.2 线索二叉树
 
