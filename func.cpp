@@ -561,3 +561,41 @@ void PostOrder(BiTree T)
         visit(T);
     }
 }
+
+typedef struct ThreadNode
+{
+    ElemType data;
+    struct ThreadNode* lChild, *rChild;
+    int lTag, rTag;
+}ThreadNode, *ThreadTree;
+
+void InThread(ThreadTree &p, ThreadTree &pre)
+{
+    if (p != NULL)
+    {
+        InThread(p->lChild, pre);   //递归，线索化左子树
+        if (p->lChild == NULL)      //左子树为空，建立前驱线索
+        {
+            p->lChild = pre;
+            p->lTag = 1;
+        }
+        if (pre != NULL && pre->rChild == NULL)
+        {
+            pre->rChild = p;        //建立前驱结点的后继线索
+            pre->rTag = 1;
+        }
+        pre = p;                    //标记当前节点成为刚刚访问过的结点
+        InThread(p->rChild, pre);   //递归，线索化右子树
+    }
+}
+
+void CreateInThread(ThreadTree T)
+{
+    ThreadTree pre = NULL;
+    if (T != NULL)
+    {
+        InThread(T, pre);       //对非空二叉树线索化
+        pre->rChild = NULL;
+        pre->rTag = 1;          //处理最后一个结点
+    }
+}

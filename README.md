@@ -1751,7 +1751,89 @@ $$
 
 ### 5.3.2 线索二叉树
 
+1. 线索二叉树的基本概念
 
+	​	传统的二叉树进能够体现父子关系，而不能直接得到节点在遍历中的前驱或者后继。但是我们知道，在含有 n 个节点的二叉树中，有 n+1 个空指针。由此可以利用这些空指针来加速查找结点前驱和后继的速度。
+
+	​	线索二叉树的结构如下：
+
+	![image-20231105215835937](./assets/image-20231105215835937.png)
+
+	​	而标志域的含义如下：
+
+	![image-20231105215853921](./assets/image-20231105215853921.png)
+
+	​	对于线索二叉树，其存储结构描述如下：
+
+	```C++
+	typedef struct ThreadNode
+	{
+	    ElemType data;
+	    struct ThreadNode* lChild, *rChild;
+	    int lTag, rTag;
+	}ThreadNode, *ThreadTree;
+	```
+
+	
+
+2. 中序线索二叉树的构造
+
+	​	二叉树的**线索化**是指将二叉链表中的空指针改为指向前驱或者后继的线索。线索化的实质就是遍历一次二叉树。
+
+	​	以中序线索二叉树的建立为例。附设指针 pre 指向刚刚访问过的结点，指针 p 指向正在访问的结点，即 pre 指向 p 的前驱。在中序遍历的过程中，检查 p 的左指针是否为空，若为空就将它指向 pre ；检查 pre 的右指针是否为空，若为空就将它指向 p 。
+
+	![image-20231105220700206](./assets/image-20231105220700206.png)
+
+	​	通过中序遍历对二叉树线索化的递归算法如下：
+
+	```C++
+	void InThread(ThreadTree &p, ThreadTree &pre)
+	{
+	    if (p != NULL)
+	    {
+	        InThread(p->lChild, pre);   //递归，线索化左子树
+	        if (p->lChild == NULL)      //左子树为空，建立前驱线索
+	        {
+	            p->lChild = pre;
+	            p->lTag = 1;
+	        }
+	        if (pre != NULL && pre->rChild == NULL)
+	        {
+	            pre->rChild = p;        //建立前驱结点的后继线索
+	            pre->rTag = 1;
+	        }
+	        pre = p;                    //标记当前节点成为刚刚访问过的结点
+	        InThread(p->rChild, pre);   //递归，线索化右子树
+	    }
+	}
+	```
+
+	​	主要过程算法如下：
+
+	```C++
+	void CreateInThread(ThreadTree T)
+	{
+	    ThreadTree pre = NULL;
+	    if (T != NULL)
+	    {
+	        InThread(T, pre);       //对非空二叉树线索化
+	        pre->rChild = NULL;
+	        pre->rTag = 1;          //处理最后一个结点
+	    }
+	}
+	```
+
+	​	
+
+	​	为了方便，可以在二叉树的线索链表上也添加一个头结点，使其 lChild 的指针指向根节点，rChild 的指针指向中序遍历访问时最后一个结点；而二叉树中的第一个结点 lChild 指针和最后一个结点的 rChild 指针指向头结点。
+
+	![image-20231105222156601](./assets/image-20231105222156601.png)
+
+	
+
+3. 中序线索二叉树的遍历
+
+4. 先序和后序线索二叉树
 
 ## 5.4 树、森林
 
