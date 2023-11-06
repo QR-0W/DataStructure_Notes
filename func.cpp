@@ -599,3 +599,50 @@ void CreateInThread(ThreadTree T)
         pre->rTag = 1;          //处理最后一个结点
     }
 }
+
+
+ThreadNode *Firstnode(ThreadNode *p)    //求第一个结点
+{
+    while (p->lTag == 0)
+    {
+        p = p->lChild;
+    }
+    return p;
+}               
+
+ThreadNode *Nextnode(ThreadNode *p)     //求后继
+{
+    if (p->rTag == 0)
+    {
+        return Firstnode(p->rChild);
+    }
+    else
+    {
+        return p->rChild;
+    }
+}
+
+void Inorder(ThreadNode *T)
+{
+    for (ThreadNode *p = Firstnode(T);p!=NULL;p = Nextnode(p))
+        visit(p);
+}
+
+#define MAX_TREE_SIZE 100
+typedef struct
+{
+    ElemType data;
+    int parent;
+} PTNode;
+
+typedef struct
+{
+    PTNode node[MAX_TREE_SIZE];
+    int n;
+} PTree;
+
+typedef struct CSNode
+{
+    ElemType data;
+    struct CSNode *firstChild, *nextSibling;
+} CSNode, *CSTree;
