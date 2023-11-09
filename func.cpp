@@ -669,3 +669,34 @@ void Union(int S[], int Root1, int Root2)
 {
     S[Root2] = Root1;
 }
+
+#define MaxVertexNum 100
+typedef char VertexType;
+typedef int EdgeType;
+
+typedef struct
+{
+    VertexType Vex[MaxVertexNum];               //顶点表
+    EdgeType Edge[MaxVertexNum][MaxVertexNum];  //邻接矩阵表
+    int vexNum, arcNum;
+} MGraph;
+
+#define MaxVertexNum 100
+
+typedef struct ArcNode                          //边表结点
+{
+    int adjvex;                                 //弧指向的顶点位置
+    struct ArcNode *next;                       //指向下一条弧的指针
+} ArcNode;
+
+typedef struct VNode                            //顶点表结点
+{
+    VertexType data;                            //顶点信息
+    ArcNode *first;                             //指向第一条依附于该顶点的弧的指针
+} VNode, AdjList[MaxVertexNum];
+
+typedef struct
+{
+    AdjList vertices;                           //邻接表
+    int vexnum, arcnum;                         //图的顶点数和弧数
+} ALGraph;
