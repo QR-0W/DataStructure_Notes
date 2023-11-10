@@ -700,3 +700,42 @@ typedef struct
     AdjList vertices;                           //邻接表
     int vexnum, arcnum;                         //图的顶点数和弧数
 } ALGraph;
+
+bool visited[MAX_VERTEX_NUM];                   //访问标记数组
+
+void BESTraverse(Graph G)                       //对图进行广度优先遍历
+{
+    for (i = 0; i < G.vexnum; ++i)
+    {
+        visited[i] = FALSE;                     //访问标记数组初始化
+    }
+    InitQueue(Q);                               //初始化辅助队列
+    for (i = 0; i < G.vexnum; ++i)              //从 0 号顶点开始遍历
+    {
+        if (!visited[i])                        //对每个连通分量 BFS
+        {
+            BFS(G, i);
+        }
+    }
+}
+
+void BFS(Graph G, int v)                        //从顶点 v 开始，广度优先遍历图 G
+{                                   
+    visit(v);                                   //访问初始顶点 v
+    visited[v] = TRUE;                          //标记已访问
+    Enqueue(Q, v);                              //顶点 v 入队 Q
+    while (!isEmpty(Q))
+    {
+        DeQueue(Q, v);                          //顶点 v 出队
+        for (w = FirstNeighbour(G, v); w >= 0; w = NextNeighbour(G, v, W))
+                                                //检测 v 所有邻接点
+        {
+            if (!visited[w])                    //w 为 v 的尚未访问的邻接顶点
+            {
+                visit(w);                       //访问 w
+                visited[w] = TRUE;
+                EnQueue(Q, w);
+            }
+        }
+    }
+}
