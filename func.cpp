@@ -739,3 +739,56 @@ void BFS(Graph G, int v)                        //从顶点 v 开始，广度优
         }
     }
 }
+
+void BFS_Min_Distance(Grapg G, int u)
+{
+    for (i = 0; i < G.vexnum; ++i)
+    {
+        d[i] = INFINITY;            //d[i] 表示从 u 到 i 的最短路径，此处先初始化
+    }
+    visited[u] = TRUE;
+    d[u] = 0;
+    EnQueue(Q, u);
+    while (!isEmpty(Q))             //BFS 算法主过程
+    {
+        DeQueue(Q, u);              //队头 u 出队
+        for (w = FirstNeighbour(G, u); w >= 0; w = NextNeighbour(G, u, w))
+        {
+            if (!visited[w])        //w 为u 尚未访问的邻接顶点
+            {
+                visited[w] = TRUE;  //标记为已访问
+                d[w] = d[u] + 1;    //路径长度 + 1
+            }
+        }
+    }
+}
+
+bool visited[MAX_VERYEX_NUM];
+
+void DFSTraverse(Graph G)
+{
+    for (v = 0; v < G.vexnum; ++v)
+    {
+        visited[v] = FALSE;         //初始化
+    }
+    for (v = 0; v < G.vexnum; ++v)  //本代码从 v=0 开始遍历
+    {
+        if (!visited[v])
+        {
+            DFS(G, v);
+        }
+    }
+}
+
+void DFS(Graph G, int v)
+{
+    visit(v);
+    visited[v] = TRUE;
+    for (w = FirstNeighbour(G, v); w >= 0; w = NextNeighbour(G, v, w))                        
+    {
+        if (!visited[w])            // w 为 v 的未访问邻接顶点
+        {
+            DFS(G, w);
+        }
+    }
+}
